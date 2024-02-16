@@ -1,11 +1,12 @@
 import threading
 import argparse
+import signal
 import time
 
 from auto_chat.auto_chat import AutoChat
 
 
-def loop(autochat_instance: AutoChat, exit_flag_instance: threading.Event) -> None:
+def auto_chat_check_loop(autochat_instance: AutoChat, exit_flag_instance: threading.Event) -> None:
     # infinite loop with check_time_and_send every 60 seconds
     while not exit_flag_instance.is_set():
         try:
@@ -15,14 +16,20 @@ def loop(autochat_instance: AutoChat, exit_flag_instance: threading.Event) -> No
         time.sleep(60)
 
 
-def wait_for_exit(exit_flag_instance: threading.Event):
-    # waiting for user input to stop the program
-    input("Press Enter to stop the program...")
+def stop_program(
+        exit_flag_instance: threading.Event,
+        autochat_instance: AutoChat,
+        autochat_thread_instance: threading.Thread
+) -> None:
+    print('\n' + 'Stopping the program...')
     exit_flag_instance.set()
-    print("Exiting...")
+    autochat_instance.stop()
+    autochat_thread_instance.join()
+    print('Program stopped.')
 
 
 if __name__ == "__main__":
+    print('Starting the program...')
     # parsing arguments
     parser = argparse.ArgumentParser(description='AutoChat Configuration')
     parser.add_argument('--telegram-config', type=str, help='Path to Telegram config file')
@@ -39,19 +46,13 @@ if __name__ == "__main__":
     )
     # initializing exit flag
     exit_flag = threading.Event()
-    # starting loop
+    # starting auto chat loop
     autochat_thread = threading.Thread(
-        target=loop,
+        target=auto_chat_check_loop,
         args=(autochat, exit_flag)
     )
     autochat_thread.start()
-    # starting waiting for user input thread
-    wait_thread = threading.Thread(
-        target=wait_for_exit,
-        args=[exit_flag]
-    )
-    wait_thread.start()
-    # if exit flag is set than stopping the program
-    wait_thread.join()
-    autochat.stop()
-    autochat_thread.join()
+    print('Program is running...' + '\n' + 'Use Ctrl+C or just exit to stop the program')
+    # setting stop signals
+    signal.signal(signal.SIGINT, lambda sig, frame: stop_program(exit_flag, autochat, autochat_thread))
+    signal.signal(signal.SIGTERM, lambda sig, frame: stop_program(exit_flag, autochat, autochat_thread))
