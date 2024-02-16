@@ -3,3 +3,4 @@ ApiHash: 1111111111
 DatabaseEncryptionKey: 11111111
 FilesDirectory: data
 PhoneNumber: +11111111
+Login: true

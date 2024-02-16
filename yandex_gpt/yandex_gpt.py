@@ -1,7 +1,6 @@
+from typing import List
 import requests
 import time
-from typing import List
-
 import jwt
 
 from routines.read_file import read_json, read_yaml
@@ -43,7 +42,7 @@ class YandexGPT:
         else:
             self._catalog_id = catalog_id
 
-    def _set_iam_token(self):
+    def _set_iam_token(self) -> None:
         # reading yaml config
         config = read_yaml(self._yandex_cloud_config_file_path)
         # reading json key
@@ -65,7 +64,8 @@ class YandexGPT:
     def _swap_jwt_to_iam(
             jwt_token: str,
             url: str = "https://iam.api.cloud.yandex.net/iam/v1/tokens"
-    ):
+    ) -> str:
+        # sending request to get IAM token
         headers = {
             "Content-Type": "application/json"
         }
@@ -73,6 +73,7 @@ class YandexGPT:
             "jwt": jwt_token
         }
         response = requests.post(url, headers=headers, json=data)
+        # checking response
         if response.status_code == 200:
             return response.json()['iamToken']
         else:
@@ -90,6 +91,7 @@ class YandexGPT:
             key_id: str,
             url: str = 'https://iam.api.cloud.yandex.net/iam/v1/tokens'
     ) -> str:
+        # generating jwt token
         now = int(time.time())
         payload = {
             'aud': url,
@@ -105,21 +107,23 @@ class YandexGPT:
         )
         return encoded_token
 
-    def _set_catalog_id(self):
+    def _set_catalog_id(self) -> None:
+        # reading yaml config file
         config = read_yaml(self._yandex_cloud_config_file_path)
+        # setting catalog id from config file
         self._catalog_id = config['CatalogID']
 
     def send_completion_request(
             self,
             messages: List[dict],
-            template: float = 0.6,
+            temperature: float = 0.6,
             max_tokens: int = 1000,
             stream: bool = False,
-            url: str = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion"
+            completion_url: str = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion"
     ) -> dict:
         # checking if IAM token and catalog id is set
         if not self._iam_token or not self._catalog_id:
-            raise Exception("IAM token and catalog id must be set")
+            raise Exception("IAM token and catalog id must be set to send completion requests")
         # sending request
         headers = {
             "Content-Type": "application/json",
@@ -130,12 +134,13 @@ class YandexGPT:
             "modelUri": f"gpt://{self._catalog_id}/{self.model_type}/latest",
             "completionOptions": {
                 "stream": stream,
-                "temperature": template,
+                "temperature": temperature,
                 "maxTokens": str(max_tokens)
             },
             "messages": messages
         }
-        response = requests.post(url, headers=headers, json=data)
+        response = requests.post(completion_url, headers=headers, json=data)
+        # checking response
         if response.status_code == 200:
             return response.json()
         else:
