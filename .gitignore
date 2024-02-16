@@ -1,0 +1,10 @@
+.idea
+venv
+data
+notebooks
+
+config/telegram.yaml
+config/yandex_cloud.yaml
+config/autolove.yaml
+
+keys/yandex_authorization_key.json

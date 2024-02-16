@@ -1,0 +1,11 @@
+TargetUsername: aaaaaa
+SendingTime: [
+  '10:00',
+  '15:30'
+]
+MessagePrompt: [
+  'Напиши апдейт для девушки',
+  'Пожелай девушке хорошего вечера'
+]
+ChatMode: false
+TimeZone: Europe/Moscow
