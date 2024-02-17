@@ -2,6 +2,15 @@
 
 <br>
 
+#### Перед использованием необходимо будет задать конфигурационные файлы с параметрами из примеров в папке config, а также создать ключ авторизации Yandex Cloud. Как это сделать — смотрите по следующим ссылкам:
+- [Yandex Cloud IAM](https://cloud.yandex.ru/ru/docs/iam/operations/iam-token/create-for-sa#via-jwt)
+- [Yandex Cloud Key](https://cloud.yandex.ru/ru/docs/iam/operations/authorized-key/create#console_1)
+- [Yandex Cloud SA ID](https://cloud.yandex.ru/ru/docs/iam/operations/sa/get-id)
+- [Telegram API](https://core.telegram.org/api/obtaining_api_id)
+- [Python-Telegram](https://python-telegram.readthedocs.io/en/latest/tutorial.html)
+
+<br>
+
 #### Как использовать локально:
 - Установка зависимостей
 ```bash
